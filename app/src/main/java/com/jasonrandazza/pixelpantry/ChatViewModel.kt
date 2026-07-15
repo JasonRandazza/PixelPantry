@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import ai.liquid.leap.Conversation
 import ai.liquid.leap.ModelRunner
-import ai.liquid.leap.MessageResponse
+import ai.liquid.leap.message.MessageResponse
 import ai.liquid.leap.downloader.LeapModelDownloader
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +42,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     when (response) {
                         is MessageResponse.Chunk -> println(response.text)
                         is MessageResponse.Complete -> println("Complete")
+                        else -> Unit
                     }
                 }
         }

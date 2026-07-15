@@ -6,7 +6,9 @@ Formerly prototyped as **Find Me A Recipe**. This repository is the canonical de
 
 ## Status
 
-Early spike: Koog (cloud) recipe agent and Leap on-device text model wiring exist. No launcher UI, camera pipeline, or local inventory database yet. Product plans live under a local `docs/` folder (gitignored).
+Early spike: Leap VL research UI (`VlmSpikeActivity`) loads `LFM2.5-VL-1.6B` and runs fridge-photo prompts. Product inventory/camera/Room not built yet. Planning docs live under local gitignored `docs/`.
+
+**Locality:** Prefer on-device inference; network is expected for model download and some lookups (not a pure-offline app).
 
 ## Requirements
 
