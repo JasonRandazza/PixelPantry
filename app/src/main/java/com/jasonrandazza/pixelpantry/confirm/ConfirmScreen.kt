@@ -19,17 +19,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.jasonrandazza.pixelpantry.domain.DetectedIngredient
 
 @Composable
 fun ConfirmScreen(
     viewModel: ConfirmViewModel,
     onSaved: () -> Unit,
+    onContinue: (List<DetectedIngredient>) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.ui.collectAsState()
 
     LaunchedEffect(state.saveCompleted) {
         if (state.saveCompleted) onSaved()
+    }
+    LaunchedEffect(state.confirmedItems) {
+        state.confirmedItems?.let(onContinue)
     }
 
     Column(
@@ -74,8 +79,13 @@ fun ConfirmScreen(
         TextButton(onClick = viewModel::addBlank, modifier = Modifier.fillMaxWidth()) {
             Text("Add item")
         }
-        Button(onClick = viewModel::save, modifier = Modifier.fillMaxWidth()) {
-            Text("Save to inventory")
+        Button(onClick = viewModel::confirm, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                when (state.mode) {
+                    ConfirmMode.HomeSave -> "Save to inventory"
+                    ConfirmMode.OneOffSession -> "Continue to recipe"
+                },
+            )
         }
     }
 }

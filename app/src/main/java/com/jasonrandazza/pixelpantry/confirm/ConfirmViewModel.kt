@@ -15,9 +15,17 @@ import kotlinx.coroutines.launch
 
 class ConfirmViewModel(
     initialText: String,
+    mode: ConfirmMode,
     private val repository: InventoryRepository,
 ) : ViewModel() {
-    private val _ui = MutableStateFlow(ConfirmUiState(items = IngredientLineParser.parse(initialText)))
+    private val _ui = MutableStateFlow(
+        ConfirmUiState(
+            items = IngredientLineParser.parse(initialText).ifEmpty {
+                listOf(DetectedIngredient(name = "", quantityLabel = "unknown"))
+            },
+            mode = mode,
+        ),
+    )
     val ui = _ui.asStateFlow()
 
     fun updateName(id: String, name: String) {
@@ -38,19 +46,25 @@ class ConfirmViewModel(
         }
     }
 
-    fun save() {
+    fun confirm() {
         val items = _ui.value.items.filter { it.name.isNotBlank() }
-        _ui.update { it.copy(saveCompleted = false, error = null) }
+        _ui.update { it.copy(saveCompleted = false, confirmedItems = null, error = null) }
         if (items.isEmpty()) {
             _ui.update { it.copy(error = "Add at least one named item") }
             return
         }
-        viewModelScope.launch {
-            try {
-                repository.upsertAll(items)
-                _ui.update { it.copy(saveCompleted = true) }
-            } catch (e: Exception) {
-                _ui.update { it.copy(error = e.message ?: "Unable to save inventory.") }
+        when (_ui.value.mode) {
+            ConfirmMode.HomeSave -> viewModelScope.launch {
+                try {
+                    repository.upsertAll(items)
+                    _ui.update { it.copy(saveCompleted = true) }
+                } catch (e: Exception) {
+                    _ui.update { it.copy(error = e.message ?: "Unable to save inventory.") }
+                }
+            }
+
+            ConfirmMode.OneOffSession -> {
+                _ui.update { it.copy(confirmedItems = items) }
             }
         }
     }
@@ -64,6 +78,7 @@ class ConfirmViewModel(
     class Factory(
         context: Context,
         private val initialText: String = FixtureDetections.SAMPLE,
+        private val mode: ConfirmMode = ConfirmMode.HomeSave,
     ) : ViewModelProvider.Factory {
         private val appContext = context.applicationContext
 
@@ -71,7 +86,7 @@ class ConfirmViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             check(modelClass.isAssignableFrom(ConfirmViewModel::class.java))
             val repository = InventoryRepository(AppDatabase.get(appContext).inventoryDao())
-            return ConfirmViewModel(initialText, repository) as T
+            return ConfirmViewModel(initialText, mode, repository) as T
         }
     }
 }
