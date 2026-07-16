@@ -36,4 +36,25 @@ class InventoryRepositoryInstrumentedTest {
             db.close()
         }
     }
+
+    @Test
+    fun upsertSameNameTwiceKeepsOneRow() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(
+            InstrumentationRegistry.getInstrumentation().targetContext,
+            AppDatabase::class.java,
+        ).build()
+        try {
+            val repository = InventoryRepository(db.inventoryDao())
+
+            repository.upsertAll(listOf(DetectedIngredient("Eggs", "6", id = "1")))
+            repository.upsertAll(listOf(DetectedIngredient("eggs", "12", id = "2")))
+
+            val items = repository.observeAll().first()
+            assertEquals(1, items.size)
+            assertEquals("12", items.single().quantityLabel)
+            assertEquals("1", items.single().id)
+        } finally {
+            db.close()
+        }
+    }
 }

@@ -12,12 +12,20 @@ class InventoryRepository(private val dao: InventoryDao) {
         dao.observeAll().map { rows -> rows.map { it.toDomain() } }
 
     suspend fun upsertAll(items: List<DetectedIngredient>) {
+        if (items.isEmpty()) return
         val now = System.currentTimeMillis()
-        dao.upsertAll(items.map { it.toEntity(now) })
+        val itemsByName = items.associateBy { it.name.lowercase() }
+        val existingIdsByName = dao.findByNames(itemsByName.keys.toList())
+            .associate { it.name.lowercase() to it.id }
+        dao.upsertAll(
+            itemsByName.map { (name, item) ->
+                item.toEntity(existingIdsByName[name] ?: item.id, now)
+            },
+        )
     }
 }
 
-private fun DetectedIngredient.toEntity(updatedAtEpochMs: Long) = InventoryEntity(
+private fun DetectedIngredient.toEntity(id: String, updatedAtEpochMs: Long) = InventoryEntity(
     id = id,
     name = name,
     quantityLabel = quantityLabel,

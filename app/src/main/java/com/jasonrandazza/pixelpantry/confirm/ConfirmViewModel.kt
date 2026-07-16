@@ -34,13 +34,17 @@ class ConfirmViewModel(
 
     fun addBlank() {
         _ui.update { state ->
-            state.copy(items = state.items + DetectedIngredient(name = "", quantityLabel = ""))
+            state.copy(items = state.items + DetectedIngredient(name = "", quantityLabel = "unknown"))
         }
     }
 
     fun save() {
-        val items = _ui.value.items
+        val items = _ui.value.items.filter { it.name.isNotBlank() }
         _ui.update { it.copy(saveCompleted = false, error = null) }
+        if (items.isEmpty()) {
+            _ui.update { it.copy(error = "Add at least one named item") }
+            return
+        }
         viewModelScope.launch {
             try {
                 repository.upsertAll(items)
