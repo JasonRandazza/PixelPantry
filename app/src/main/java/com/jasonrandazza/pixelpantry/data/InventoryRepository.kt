@@ -23,6 +23,14 @@ class InventoryRepository(private val dao: InventoryDao) {
             },
         )
     }
+
+    suspend fun upsert(item: DetectedIngredient) {
+        dao.upsert(item.toEntity(item.id, System.currentTimeMillis()))
+    }
+
+    suspend fun deleteById(id: String) {
+        dao.deleteById(id)
+    }
 }
 
 private fun DetectedIngredient.toEntity(id: String, updatedAtEpochMs: Long) = InventoryEntity(

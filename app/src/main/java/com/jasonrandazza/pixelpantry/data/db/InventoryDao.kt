@@ -15,4 +15,10 @@ interface InventoryDao {
 
     @Upsert
     suspend fun upsertAll(entities: List<InventoryEntity>)
+
+    @Upsert
+    suspend fun upsert(entity: InventoryEntity)
+
+    @Query("DELETE FROM inventory_items WHERE id = :id")
+    suspend fun deleteById(id: String)
 }
