@@ -23,7 +23,7 @@
         android:theme="@style/Theme.PixelPantry"
         tools:targetApi="31">
         <activity
-            android:name=".spike.VlmSpikeActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PixelPantry">
@@ -32,6 +32,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".spike.VlmSpikeActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

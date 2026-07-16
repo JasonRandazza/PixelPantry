@@ -6,7 +6,7 @@ Formerly prototyped as **Find Me A Recipe**. This repository is the canonical de
 
 ## Status
 
-Early spike: Leap VL research UI (`VlmSpikeActivity`) loads `LFM2.5-VL-1.6B` and runs fridge-photo prompts. Product inventory/camera/Room not built yet. Planning docs live under local gitignored `docs/`.
+Product stub: the launcher opens fixture detections for confirmation, then shows saved Room inventory. The Leap VL research UI (`VlmSpikeActivity`) remains available for device-only model runs but is not the launcher. Planning docs live under local gitignored `docs/`.
 
 **Locality:** Prefer on-device inference; network is expected for model download and some lookups (not a pure-offline app).
 
